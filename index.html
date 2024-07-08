@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手書きメモアプリ（保存機能付き）</title>
+    <style>
+        #canvas {
+            border: 1px solid #000;
+            touch-action: none;
+        }
+        .button-group {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div class="button-group">
+        <button id="clear">クリア</button>
+        <button id="save">保存</button>
+        <button id="load">読み込み</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const clearButton = document.getElementById('clear');
+        const saveButton = document.getElementById('save');
+        const loadButton = document.getElementById('load');
+        let isDrawing = false;
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+
+            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveDrawing() {
+            const drawingData = canvas.toDataURL();
+            localStorage.setItem('savedDrawing', drawingData);
+            alert('描画が保存されました。');
+        }
+
+        function loadDrawing() {
+            const savedData = localStorage.getItem('savedDrawing');
+            if (savedData) {
+                const img = new Image();
+                img.onload = function() {
+                    clearCanvas();
+                    ctx.drawImage(img, 0, 0);
+                }
+                img.src = savedData;
+            } else {
+                alert('保存された描画がありません。');
+            }
+        }
+
+        canvas.addEventListener('pointerdown', startDrawing);
+        canvas.addEventListener('pointerup', stopDrawing);
+        canvas.addEventListener('pointerout', stopDrawing);
+        canvas.addEventListener('pointermove', draw);
+        clearButton.addEventListener('click', clearCanvas);
+        saveButton.addEventListener('click', saveDrawing);
+        loadButton.addEventListener('click', loadDrawing);
+    </script>
+</body>
+</html>
