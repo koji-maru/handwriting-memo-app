@@ -7,12 +7,13 @@
     <style>
         #canvas {
             #canvas {
-               -webkit-user-select: none;
+                touch-action: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
                 -moz-user-select: none;
                 -ms-user-select: none;
                 user-select: none;
-                touch-action: none;
-        }
         }
         .button-group {
             margin-top: 10px;
@@ -82,8 +83,8 @@
             }
         }
 
-        canvas.addEventListener('pointerdown', startDrawing);
-        canvas.addEventListener('pointermove', draw);
+        canvas.addEventListener('pointerdown', startDrawing, { passive: false });
+        canvas.addEventListener('pointermove', draw, { passive: false });
         canvas.addEventListener('pointerup', stopDrawing);
         canvas.addEventListener('pointerout', stopDrawing);
 
@@ -97,9 +98,9 @@
             e.preventDefault(); // デフォルトの動作を防ぐ
             
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
+            const x = e.clientX || e.touches[0].clientX - rect.left;
+            const y = e.clientY || e.touches[0].clientY - rect.top;
+    
             ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
@@ -110,6 +111,9 @@
             isDrawing = false;
             ctx.beginPath();
         }
+        document.getElementById('clear').addEventListener('click', clearCanvas);
+        document.getElementById('save').addEventListener('click', saveDrawing);
+        document.getElementById('load').addEventListener('click', loadDrawing);
     </script>
 </body>
 </html>
