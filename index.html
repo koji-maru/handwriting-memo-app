@@ -2,12 +2,17 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>手書きメモアプリ（保存機能付き）</title>
     <style>
         #canvas {
-            border: 1px solid #000;
-            touch-action: none;
+            #canvas {
+               -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                touch-action: none;
+        }
         }
         .button-group {
             margin-top: 10px;
@@ -78,12 +83,33 @@
         }
 
         canvas.addEventListener('pointerdown', startDrawing);
+        canvas.addEventListener('pointermove', draw);
         canvas.addEventListener('pointerup', stopDrawing);
         canvas.addEventListener('pointerout', stopDrawing);
-        canvas.addEventListener('pointermove', draw);
-        clearButton.addEventListener('click', clearCanvas);
-        saveButton.addEventListener('click', saveDrawing);
-        loadButton.addEventListener('click', loadDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault(); // デフォルトの動作を防ぐ
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
     </script>
 </body>
 </html>
